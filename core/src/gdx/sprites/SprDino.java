@@ -17,7 +17,7 @@ public class SprDino extends Sprite {
 
     SprDino(Texture _txDino) {
         txDino = _txDino;
-        //sprDino = new Sprite(txDino);
+        sprDino = new Sprite(txDino);
         vPos = new Vector2((0), 30);
         vDir = new Vector2(0, 0);
         vGrav = new Vector2(0, 0);

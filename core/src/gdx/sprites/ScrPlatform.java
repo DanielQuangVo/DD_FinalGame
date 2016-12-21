@@ -25,7 +25,6 @@ import java.util.Iterator;
 public class ScrPlatform implements Screen, InputProcessor {
 
     Game game;
-    Animation araniDino[];
     SpriteBatch batch;
     Sprite sprBack, sprDinoAn;
     TextureRegion trTemp;
@@ -47,25 +46,14 @@ public class ScrPlatform implements Screen, InputProcessor {
 
     public ScrPlatform(Game _game) {
         SetFont();
-        game = _game;
-        araniDino = new Animation[7];
-        txSheet = new Texture("REALDINO.png.png");
-        fW = txSheet.getWidth();
-        fH = txSheet.getHeight() / 7;
-        for (int i = 0; i < 7; i++) {
-            Sprite[] arSprVlad = new Sprite[7];            
-                fSy = i * fH;
-                sprDinoAn = new Sprite(txSheet, fSx, fSy, fW, fH);
-               araniDino[i] = new Animation(1f, sprDinoAn);
-            }
-            
-        /*txDinFor1 = (new Texture(Gdx.files.internal("1.png")));
-        txDinoFor2 = (new Texture(Gdx.files.internal("3.png")));
-        txBack1 = (new Texture(Gdx.files.internal("0.png")));
-        txBack2 = (new Texture(Gdx.files.internal("2.png")));
-        txJumpRight = (new Texture(Gdx.files.internal("5.png")));
-        txJumpLeft = (new Texture(Gdx.files.internal("4.png")));
-        txDead = (new Texture(Gdx.files.internal("6.png")));*/
+        game = _game;   
+        txDinFor1 = (new Texture(Gdx.files.internal("0.png")));
+        txDinoFor2 = (new Texture(Gdx.files.internal("1.png")));
+        txBack1 = (new Texture(Gdx.files.internal("3.png")));
+        txBack2 = (new Texture(Gdx.files.internal("4.png")));
+        txJumpRight = (new Texture(Gdx.files.internal("2.png")));
+        txJumpLeft = (new Texture(Gdx.files.internal("5.png")));
+        txDead = (new Texture(Gdx.files.internal("6.png")));
         batch = new SpriteBatch();
         txDino = new Texture("Dinosaur.png");
         txDeadDino = new Texture("dead.png");
@@ -76,7 +64,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         camBack.position.set(fScreenWidth / 2, fScreenHei / 2, 0);
         Gdx.input.setInputProcessor((this));
         Gdx.graphics.setWindowedMode(800, 500);
-        //sprDino = new SprDino(txDinFor1);
+        sprDino = new SprDino(txDinFor1);
         sprPlatform = new SprPlatform(txPlat);
         arsprPlatform = new Array<SprPlatform>();
         arsprPlatform.add(sprPlatform);        
@@ -110,21 +98,20 @@ public class ScrPlatform implements Screen, InputProcessor {
         nFrame++;
         if (nFrame > 7) {
             nFrame = 0;
-        }
-        trTemp = araniDino[nPos].getKeyFrame(nFrame, true);        
+        }                
         for (SprPlatform sprPlatform : arsprPlatform) {
             sprPlatform.update();
         }
         float fCounter = 0;
-        while(Gdx.input.isKeyPressed(Input.Keys.D)){
-            //sprDino.Animate(txDinoFor2);
+        /*while(Gdx.input.isKeyPressed(Input.Keys.D)){
+            sprDino.Animate(txDinoFor2);
             fCounter += .25;
             if(fCounter == 2){
-                //sprDino.Animate(txDinFor1);
+                sprDino.Animate(txDinFor1);
                 fCounter = 0;
             }
-        }
-        /*if (nAni == 0) {
+        }*/
+        if (nAni == 0) {
             sprDino.Animate(txDinFor1);
         } else if(nAni == 1){
             sprDino.Animate(txDinoFor2);
@@ -136,8 +123,8 @@ public class ScrPlatform implements Screen, InputProcessor {
             sprDino.Animate(txJumpRight);
         }else if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && Gdx.input.isKeyPressed(Input.Keys.A)){
             sprDino.Animate(txJumpLeft);
-        }*/
-        //sprDino.update();
+        }
+        sprDino.update();
         batch.begin();
         if ((nScreenX < -Gdx.graphics.getWidth() || nScreenX > Gdx.graphics.getWidth())) {
             nScreenX = 0;
@@ -148,8 +135,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         batch.draw(sprBack, nScreenX - Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(sprBack, nScreenX + Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         textFontLevel.draw(batch, sLevel, fScreenWidth / 6, (fScreenHei / 10) * 9);
-        //batch.draw(sprDino.getSprite(), sprDino.getX(), sprDino.getY());
-        batch.draw(trTemp, /*sprDino.getX()*/100, /*sprDino.getY()*/30, 150, 200);
+        batch.draw(sprDino.getSprite(), sprDino.getX(), sprDino.getY());        
         for (SprPlatform sprPlatform : arsprPlatform) {
             batch.draw(sprPlatform.getSprite(), sprPlatform.getX(), sprPlatform.getY());
         }
@@ -232,19 +218,17 @@ public class ScrPlatform implements Screen, InputProcessor {
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.SPACE && sprDino.bJump == false) {
-            //sprDino.vDir.set((float) sprDino.vDir.x, 25);
+            sprDino.vDir.set((float) sprDino.vDir.x, 25);
             sprDino.vGrav.set(0, (float) -0.5);
             sprDino.bJump = true;
             nAni = 3;
         } else if (keycode == Input.Keys.A) {
-            //sprDino.vDir.set(-2, (float) sprDino.vDir.y);
-            fVx = -2;
-            nPos = 2;
+            sprDino.vDir.set(-2, (float) sprDino.vDir.y);
+            fVx = -2;            
             nAni = 2;
         } else if (keycode == Input.Keys.D) {
-            //sprDino.vDir.set(2, (float) sprDino.vDir.y);
-            fVx = 2;
-            nPos = 3;
+            sprDino.vDir.set(2, (float) sprDino.vDir.y);
+            fVx = 2;            
             nAni = 1;
         } else if (keycode == Input.Keys.E) {
             System.exit(3);
@@ -255,14 +239,12 @@ public class ScrPlatform implements Screen, InputProcessor {
     @Override
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.A) {
-            //sprDino.vDir.set(0, (float) sprDino.vDir.y);
+            sprDino.vDir.set(0, (float) sprDino.vDir.y);
             fVx = 0;
-            nPos = 0;
             nAni = 5;
         } else if (keycode == Input.Keys.D) {
-            //sprDino.vDir.set(0, (float) sprDino.vDir.y);
+            sprDino.vDir.set(0, (float) sprDino.vDir.y);
             fVx = 0;
-            nPos = 1;
             nAni = 0;
         }
         return false;
