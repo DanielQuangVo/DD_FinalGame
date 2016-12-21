@@ -94,7 +94,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         Gdx.gl.glClearColor(1, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camBack.update();
-        //sprDino.HitDetection(camBack.viewportWidth);
+        sprDino.HitDetection(camBack.viewportWidth);
         nFrame++;
         if (nFrame > 7) {
             nFrame = 0;
