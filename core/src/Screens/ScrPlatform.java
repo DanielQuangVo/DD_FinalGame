@@ -1,5 +1,5 @@
 //https://github.com/Mrgfhci/Drop
-package gdx.sprites;
+package Screens;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -230,9 +230,9 @@ public class ScrPlatform implements Screen, InputProcessor {
             sprDino.vDir.set(2, (float) sprDino.vDir.y);
             fVx = 2;            
             nAni = 1;
-        } else if (keycode == Input.Keys.E) {
+        } /*else if (keycode == Input.Keys.ESCAPE) {
             System.exit(3);
-        }
+        }*/
         return false;
     }
 
