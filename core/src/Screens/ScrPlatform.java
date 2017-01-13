@@ -19,11 +19,19 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
 import java.util.Iterator;
 
 public class ScrPlatform implements Screen, InputProcessor {
 
+    DataStore data;
+    Json json;
+    JsonReader reader;
+    FileHandle file;
+    TextField text;
     Game game;
     SpriteBatch batch;
     Sprite sprBack, sprDinoAn;
@@ -45,6 +53,10 @@ public class ScrPlatform implements Screen, InputProcessor {
     private float fVx;
 
     public ScrPlatform(Game _game) {
+        data = new DataStore();
+        json = new Json();
+        file = new FileHandle("myjson2.json");
+        reader = new JsonReader();
         nHitType = 0;
         HitPlatform = 0;
         SetFont();
@@ -100,6 +112,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         camBack.update();
         sprDino.PositionSet();
         HitDetection();
+        sprDino.HitDetectionBounds(camBack.viewportWidth);
         sprDino.gravity();
         nFrame++;
         if (nFrame > 7) {
@@ -110,13 +123,13 @@ public class ScrPlatform implements Screen, InputProcessor {
         }
         float fCounter = 0;
         /*while(Gdx.input.isKeyPressed(Input.Keys.D)){
-            sprDino.Animate(txDinoFor2);
-            fCounter += .25;
-            if(fCounter == 2){
-                sprDino.Animate(txDinFor1);
-                fCounter = 0;
-            }
-        }*/
+         sprDino.Animate(txDinoFor2);
+         fCounter += .25;
+         if(fCounter == 2){
+         sprDino.Animate(txDinFor1);
+         fCounter = 0;
+         }
+         }*/
         if (nAni == 0) {
             sprDino.Animate(txDinFor1);
         } else if (nAni == 1) {
@@ -135,7 +148,6 @@ public class ScrPlatform implements Screen, InputProcessor {
         if ((nScreenX < -Gdx.graphics.getWidth() || nScreenX > Gdx.graphics.getWidth())) {
             nScreenX = 0;
         }
-
         batch.setProjectionMatrix(camBack.combined);
         batch.draw(sprBack, nScreenX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(sprBack, nScreenX - Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
@@ -171,6 +183,13 @@ public class ScrPlatform implements Screen, InputProcessor {
             fProgBar = 0;
             sLevel = "Level " + nLevelCount;
         }
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            data.sInput = sLevel;
+            json.toJson(data, file);
+            System.out.println(reader.parse(file).get("sInput").asString());
+            Gdx.app.exit();
+            dispose();
+        }
         Iterator<SprPlatform> iter = arsprPlatform.iterator();
         while (iter.hasNext()) {
             SprPlatform sprPlatform = iter.next();
@@ -183,6 +202,7 @@ public class ScrPlatform implements Screen, InputProcessor {
             }
         }
     }
+
     void SpawnPlatform() {
         Iterator<SprPlatform> iter = arsprPlatform.iterator();
         while (iter.hasNext()) {
@@ -196,7 +216,8 @@ public class ScrPlatform implements Screen, InputProcessor {
             }
         }
     }
-void HitDetection() {
+
+    void HitDetection() {
         nHitType = HitPlatform();
         if (nHitType == 0) {
             System.out.println("NO HIT");
@@ -231,7 +252,7 @@ void HitDetection() {
         }
     }
 
-   int HitPlatform() {
+    int HitPlatform() {
         Iterator<SprPlatform> iter = arsprPlatform.iterator();
         while (iter.hasNext()) {
             SprPlatform sprPlatform = iter.next();
@@ -253,6 +274,7 @@ void HitDetection() {
         }
         return 0;
     }
+
     @Override
     public void resize(int i, int i1) {
         //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -298,8 +320,8 @@ void HitDetection() {
             sprDino.vDir.set(2, (float) sprDino.vDir.y);
             fVx = 2;
             nAni = 1;
-        }else if (keycode == Input.Keys.ESCAPE) {
-            System.exit(3);
+        } else if (keycode == Input.Keys.ESCAPE) {
+            //System.exit(3);
         }
         return false;
     }

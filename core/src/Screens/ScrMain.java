@@ -15,9 +15,12 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.utils.Json;
+import com.badlogic.gdx.utils.JsonReader;
 
-public class ScrMain  extends InputAdapter implements Screen{
-
+public class ScrMain extends InputAdapter implements Screen {
+    
     GamPlatforms gamPlatforms;
     SpriteBatch batch;
     BitmapFont textFont, textFontLevel, textCreate, textOrder, textExit;
@@ -47,7 +50,7 @@ public class ScrMain  extends InputAdapter implements Screen{
 
     public ScrMain(GamPlatforms _game) {
         SetFont();
-        batch = new SpriteBatch();
+        batch = new SpriteBatch();        
         txDinFor1 = (new Texture(Gdx.files.internal("0.png")));
         gamPlatforms = _game;
         sprBack = new Sprite(new Texture(Gdx.files.internal("world.jpg")));
@@ -66,31 +69,25 @@ public class ScrMain  extends InputAdapter implements Screen{
         textOrder.draw(batch, "To Proceed, Click Enter", fScreenWidth / 5, (fScreenHei / 10) * 5);
         textExit.draw(batch, "To Exit, Click Esc", fScreenWidth / 5, (fScreenHei / 10) * 6);
         batch.draw(sprDino.getSprite(), fScreenWidth / 3, sprDino.getY());
-        batch.end();  
-         
+        batch.end();
+
         if (Gdx.input.isKeyPressed(Input.Keys.ENTER)) {
             gamPlatforms.nScreen = 1;
             gamPlatforms.updateState();
             dispose();
-        } else if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
-            dispose();
-        }
+        } 
     }
 
     @Override
     public void show() {
-
     }
 
     @Override
     public void resize(int i, int i1) {
-
     }
 
     @Override
     public void pause() {
-
     }
 
     @Override
@@ -99,12 +96,9 @@ public class ScrMain  extends InputAdapter implements Screen{
 
     @Override
     public void hide() {
-
     }
 
     @Override
     public void dispose() {
-
     }
-
 }
