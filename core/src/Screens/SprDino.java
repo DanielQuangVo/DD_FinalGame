@@ -13,7 +13,7 @@ public class SprDino extends Sprite {
     private float fScreenWid, faspRat;
     Texture txDino, txDeadDino;
     Texture[] txHitPoint;
-    Vector2 vPos, vDir, vGrav, vPrevPos, vHitPoint,vCurPlat;
+    Vector2 vPos, vDir, vGrav, vPrevPos, vHitPoint, vCurPlat;
     private Sprite sprDino;
     boolean bJump, bGrav, bGoThrough, bPlatformCarry, bMove;
     float fGround;
@@ -22,7 +22,7 @@ public class SprDino extends Sprite {
     Array<SprHitPoint> arsprHitPoint;
 
     SprDino(Texture _txDino, Texture[] _txHitPoint) {
-        vCurPlat = new Vector2(200,200);
+        vCurPlat = new Vector2(200, 200);
         txHitPoint = _txHitPoint;
         txDino = _txDino;
         sprDino = new Sprite(txDino);
@@ -168,9 +168,23 @@ public class SprDino extends Sprite {
         }
     }
 
-    void Animate(Texture _txDinoState) {
-        sprDino.setTexture(_txDinoState);
+    void HitDetectionBounds(float _ScreenWid) {
+        fScreenWid = _ScreenWid;
+        if ((sprDino.getX() + sprDino.getWidth() >= fScreenWid)) {
+            vPos.x = fScreenWid - (sprDino.getWidth());
+        } else if (sprDino.getX() <= 0) {
+            vPos.x = 0;
+        }
     }
+
+        void Animate
+        (Texture _txDinoState
+        
+            ) {
+        sprDino.setTexture(_txDinoState);
+        }
+
+    
 
     public Sprite getSprite() {
         return sprDino;

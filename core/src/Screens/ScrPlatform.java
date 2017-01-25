@@ -119,6 +119,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         sprDino.PositionSet(); //sets the position of the dinosaur to the vPos coordinate.
             HitDetection();//controls all hit detection and goes though a general hit type before filtering the collison futher in the dinosaur sprite
         sprDino.gravity(); //activates the gravity on the dinosaur sprite
+        sprDino.HitDetectionBounds(camBack.viewportWidth);//activates hit detection for boundaries
         nFrame++;
         if (nFrame > 7) {
             nFrame = 0;
@@ -243,7 +244,7 @@ public class ScrPlatform implements Screen, InputProcessor {
             System.out.println("I'm on the ground and the block hit me");
         }else if (nHitType == 5) {
             sprDino.bGoThrough = true;
-            nAni = 6;
+            sprDino.Animate(txDeadDino);
         }
     }
 
@@ -304,16 +305,16 @@ public class ScrPlatform implements Screen, InputProcessor {
             sprDino.vDir.set((float) sprDino.vDir.x, 25);
             sprDino.vGrav.set(0, (float) -0.5);
             sprDino.bJump = true;
-            sprDino.bGrav = true;
+            sprDino.bGrav = true;            
             nAni = 3;
         } else if (keycode == Input.Keys.A) {
             sprDino.bMove = true;
-            sprDino.vDir.set(-2, (float) sprDino.vDir.y);
+            sprDino.vDir.set(-2, (float) sprDino.vDir.y);            
             fVx = -2;
             nAni = 2;
         } else if (keycode == Input.Keys.D) {
             sprDino.bMove = true;
-            sprDino.vDir.set(2, (float) sprDino.vDir.y);
+            sprDino.vDir.set(2, (float) sprDino.vDir.y);            
             fVx = 2;
             nAni = 1;
         } else if (keycode == Input.Keys.ESCAPE) {
