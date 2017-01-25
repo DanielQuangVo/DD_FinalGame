@@ -20,12 +20,13 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 
 public class ScrMain extends InputAdapter implements Screen {
-    
+
     GamPlatforms gamPlatforms;
     SpriteBatch batch;
     BitmapFont textFont, textFontLevel, textCreate, textOrder, textExit;
     boolean isChange = false, isExit = false;
     Texture txDinFor1;
+    Texture[] txHitPoint;
     float fScreenWidth = Gdx.graphics.getWidth(), fScreenHei = Gdx.graphics.getHeight();
     Sprite sprBack;
     SprDino sprDino;
@@ -49,13 +50,17 @@ public class ScrMain extends InputAdapter implements Screen {
     }
 
     public ScrMain(GamPlatforms _game) {
+               txHitPoint = new Texture[6];
+        for (int i = 0; i < 6; i++) {
+            txHitPoint[i] = new Texture("target" + i + ".jpg");
+        }
         SetFont();
         batch = new SpriteBatch();        
         txDinFor1 = (new Texture(Gdx.files.internal("0.png")));
         gamPlatforms = _game;
         sprBack = new Sprite(new Texture(Gdx.files.internal("world.jpg")));
         sprBack.setSize(fScreenWidth, fScreenHei);
-        sprDino = new SprDino(txDinFor1);
+        sprDino = new SprDino(txDinFor1, txHitPoint);
         Gdx.input.setInputProcessor((this));
     }
 

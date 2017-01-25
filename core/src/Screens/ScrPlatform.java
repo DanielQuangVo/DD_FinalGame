@@ -36,10 +36,10 @@ public class ScrPlatform implements Screen, InputProcessor {
     SpriteBatch batch;
     Sprite sprBack, sprDinoAn;
     TextureRegion trTemp;
-    Texture txDeadDino, txDino, txPlat, txSheet, txDinFor1, txDinoFor2, txBack1, txBack2, txJumpRight, txJumpLeft, txDead;
+    Texture txDeadDino, txDino, txPlat, txSheet, txDinFor1, txDinoFor2, txBack1, txBack2, txJumpRight, txJumpLeft, txDead; //textures for sprite animations and other sprites
     SprDino sprDino;
     SprPlatform sprPlatform;
-    int nAni = 0;
+    int nAni = 0; // Animations are based off of this number
     int nScreenWid = Gdx.graphics.getWidth(), nDinoHei, nScreenX, nLevelCount = 1, fW, fH, fSx, fSy, nFrame, nPos, nHitType, HitPlatform;
     float fScreenWidth = Gdx.graphics.getWidth(), fScreenHei = Gdx.graphics.getHeight(), fDist, fVBackX, fProgBar = 0;
     float aspectratio = (float) Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
@@ -51,8 +51,14 @@ public class ScrPlatform implements Screen, InputProcessor {
     String sLevel = "Level " + nLevelCount;
     private float fVy;
     private float fVx;
+    Texture[] txHitPoint;//An array of textures for our hit point sprites
 
     public ScrPlatform(Game _game) {
+        txHitPoint = new Texture[6];
+        for (int i = 0; i < 6; i++) { //initialize the array of textures
+            txHitPoint[i] = new Texture("target" + i + ".jpg");
+        }
+        nAni = 0;
         data = new DataStore();
         json = new Json();
         file = new FileHandle("myjson2.json");
@@ -61,7 +67,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         HitPlatform = 0;
         SetFont();
         game = _game;
-        txDinFor1 = (new Texture(Gdx.files.internal("0.png")));
+        txDinFor1 = (new Texture(Gdx.files.internal("0.png")));//Populate textures with different sprite animations
         txDinoFor2 = (new Texture(Gdx.files.internal("1.png")));
         txBack1 = (new Texture(Gdx.files.internal("3.png")));
         txBack2 = (new Texture(Gdx.files.internal("4.png")));
@@ -69,7 +75,7 @@ public class ScrPlatform implements Screen, InputProcessor {
         txJumpLeft = (new Texture(Gdx.files.internal("5.png")));
         txDead = (new Texture(Gdx.files.internal("6.png")));
         batch = new SpriteBatch();
-        txDino = new Texture("Dinosaur.png");
+        txDino = new Texture("Forward.png");
         txDeadDino = new Texture("dead.png");
         txPlat = new Texture("Platform.png");
         sprBack = new Sprite(new Texture(Gdx.files.internal("world.jpg")));
@@ -81,10 +87,10 @@ public class ScrPlatform implements Screen, InputProcessor {
         camBack.position.set(fScreenWidth / 2, fScreenHei / 2, 0);
         Gdx.input.setInputProcessor((this));
         Gdx.graphics.setWindowedMode(800, 500);
-        sprDino = new SprDino(txDinFor1);
-        sprPlatform = new SprPlatform(txPlat);
-        arsprPlatform = new Array<SprPlatform>();
-        arsprPlatform.add(sprPlatform);
+        sprDino = new SprDino(txDino, txHitPoint);//creates the Dinosaur sprite with it's array of hitpoints
+        sprPlatform = new SprPlatform(txPlat); // creates a new platform
+        arsprPlatform = new Array<SprPlatform>(); // creates an array of platform sprites
+        arsprPlatform.add(sprPlatform); //adds a platform to the array list of platforms
     }
 
     public void SetFont() {
@@ -110,27 +116,18 @@ public class ScrPlatform implements Screen, InputProcessor {
         Gdx.gl.glClearColor(1, 0, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         camBack.update();
-        sprDino.PositionSet();
-        HitDetection();
-        sprDino.HitDetectionBounds(camBack.viewportWidth);
-        sprDino.gravity();
+        sprDino.PositionSet(); //sets the position of the dinosaur to the vPos coordinate.
+            HitDetection();//controls all hit detection and goes though a general hit type before filtering the collison futher in the dinosaur sprite
+        sprDino.gravity(); //activates the gravity on the dinosaur sprite
         nFrame++;
         if (nFrame > 7) {
             nFrame = 0;
         }
-        for (SprPlatform sprPlatform : arsprPlatform) {
-            sprPlatform.update();
+        for (SprPlatform sprPlatform : arsprPlatform) { //loops through the array list of platforms 
+            sprPlatform.update(); //updates the platforms
         }
         float fCounter = 0;
-        /*while(Gdx.input.isKeyPressed(Input.Keys.D)){
-         sprDino.Animate(txDinoFor2);
-         fCounter += .25;
-         if(fCounter == 2){
-         sprDino.Animate(txDinFor1);
-         fCounter = 0;
-         }
-         }*/
-        if (nAni == 0) {
+        if (nAni == 0) { //change the texture of the dinsoaur based on the type of animation wanted
             sprDino.Animate(txDinFor1);
         } else if (nAni == 1) {
             sprDino.Animate(txDinoFor2);
@@ -143,22 +140,27 @@ public class ScrPlatform implements Screen, InputProcessor {
         } else if (Gdx.input.isKeyPressed(Input.Keys.SPACE) && Gdx.input.isKeyPressed(Input.Keys.A)) {
             sprDino.Animate(txJumpLeft);
         }
-        sprDino.update();
-        batch.begin();
+        sprDino.update(nAni); //update the position of the dinosaur sprite and pass the nAni variable to the hit points so they'll be positioned accordingly
+        batch.begin(); //start the sprite batch
         if ((nScreenX < -Gdx.graphics.getWidth() || nScreenX > Gdx.graphics.getWidth())) {
             nScreenX = 0;
         }
+        for (SprHitPoint _sprHitPoint : sprDino.arsprHitPoint) { //loop through the array of hit points
+            batch.draw(_sprHitPoint.getSprite(), _sprHitPoint.getX(), _sprHitPoint.getY()); //draw each hitpoint
+        }
+        SpawnPlatform();
         batch.setProjectionMatrix(camBack.combined);
         batch.draw(sprBack, nScreenX, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(sprBack, nScreenX - Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         batch.draw(sprBack, nScreenX + Gdx.graphics.getWidth(), 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         textFontLevel.draw(batch, sLevel, fScreenWidth / 6, (fScreenHei / 10) * 9);
         batch.draw(sprDino.getSprite(), sprDino.getX(), sprDino.getY());
-        for (SprPlatform sprPlatform : arsprPlatform) {
-            batch.draw(sprPlatform.getSprite(), sprPlatform.getX(), sprPlatform.getY());
+
+        for (SprPlatform sprPlatform : arsprPlatform) { //loop through the array of platforms
+            batch.draw(sprPlatform.getSprite(), sprPlatform.getX(), sprPlatform.getY()); //draw each platfrom
         }
         if (sprBack.getX() > 0) {
-            nScreenX += fVx;
+            nScreenX += fVx;//adds a background at the end of screen width
         }
         nScreenX -= fVx;
         batch.end();
@@ -170,13 +172,13 @@ public class ScrPlatform implements Screen, InputProcessor {
         shape.end();
         if (Gdx.input.isKeyPressed(Input.Keys.A)) {
             if (fProgBar <= 0) {
-                fProgBar = 0;
+                fProgBar = 0;//sets progress bar to zero if below 0
 
             } else {
-                fProgBar -= .7;
+                fProgBar -= .7;//if you move right it take away from width
             }
         } else if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-            fProgBar += .7;
+            fProgBar += .7;//if you move left it adds from width
         }
         if (fProgBar >= ((fScreenWidth / 3) * 2)) {
             nLevelCount++;
@@ -184,27 +186,17 @@ public class ScrPlatform implements Screen, InputProcessor {
             sLevel = "Level " + nLevelCount;
         }
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            data.sInput = sLevel;
-            json.toJson(data, file);
+            data.sInput = sLevel;//puts the level number to json
+            json.toJson(data, file);//save to json
             System.out.println(reader.parse(file).get("sInput").asString());
-            Gdx.app.exit();
+            Gdx.app.exit();//exits apps
             dispose();
         }
         Iterator<SprPlatform> iter = arsprPlatform.iterator();
-        while (iter.hasNext()) {
-            SprPlatform sprPlatform = iter.next();
-            if (sprPlatform.canSpawn() && (arsprPlatform.size < 2)) {
-                sprPlatform = new SprPlatform(txPlat);
-                arsprPlatform.add(sprPlatform);
-            }
-            if (sprPlatform.isOffScreen()) {
-                iter.remove();
-            }
-        }
     }
 
     void SpawnPlatform() {
-        Iterator<SprPlatform> iter = arsprPlatform.iterator();
+        Iterator<SprPlatform> iter = arsprPlatform.iterator(); 
         while (iter.hasNext()) {
             SprPlatform sprPlatform = iter.next();
             if (sprPlatform.canSpawn() && (arsprPlatform.size < 2)) {
@@ -217,9 +209,9 @@ public class ScrPlatform implements Screen, InputProcessor {
         }
     }
 
-    void HitDetection() {
-        nHitType = HitPlatform();
-        if (nHitType == 0) {
+    void HitDetection() { //this function was initially made to handle all the different type of hit detection of our game
+        nHitType = nHitPlatform();// between platforms, enemies, lasers, etc.
+        if (nHitType == 0) { //check collision between the platform and the dinosaur
             System.out.println("NO HIT");
             sprDino.bPlatformCarry = false;
             sprDino.fGround = 0;
@@ -240,7 +232,7 @@ public class ScrPlatform implements Screen, InputProcessor {
             if (sprDino.bMove == false && sprDino.bGrav == false) {
                 sprDino.bPlatformCarry = true;
             }
-            sprDino.fGround = sprPlatform.vPrevPos.y + sprPlatform.getSprite().getHeight() - 1;
+            sprDino.fGround = sprDino.vCurPlat.y + sprPlatform.getSprite().getHeight() - 1;
             sprDino.vPos.y = sprDino.fGround;
             System.out.println("land");
         } else if (nHitType == 3) {
@@ -249,30 +241,34 @@ public class ScrPlatform implements Screen, InputProcessor {
         } else if (nHitType == 4) {
             sprDino.bGoThrough = false;
             System.out.println("I'm on the ground and the block hit me");
+        }else if (nHitType == 5) {
+            sprDino.bGoThrough = true;
+            nAni = 6;
         }
     }
 
-    int HitPlatform() {
+    public int nHitPlatform() {
         Iterator<SprPlatform> iter = arsprPlatform.iterator();
         while (iter.hasNext()) {
-            SprPlatform sprPlatform = iter.next();
-            if (sprDino.getSprite().getBoundingRectangle().overlaps(sprPlatform.getSprite().getBoundingRectangle())) {
-                if (sprDino.vPrevPos.y >= (sprPlatform.vPrevPos.y + sprPlatform.getSprite().getHeight())) {
-                    return 2;
+            SprPlatform sprPlatform = iter.next(); 
+            sprDino.vCurPlat.set(sprPlatform.vPos);
+            if (sprDino.getSprite().getBoundingRectangle().overlaps(sprPlatform.getSprite().getBoundingRectangle())) { //if there is any collision
+                if (sprDino.vPrevPos.y >= (sprPlatform.vPrevPos.y + sprPlatform.getSprite().getHeight())) {//call the hit detection function within the dinosaur class to further filter the collison between the hit points
+                    return sprDino.nHitDetection(sprPlatform, 2);//landing
                 } else if (sprDino.vPos.y == sprPlatform.vPrevPos.y + sprPlatform.getSprite().getHeight() - 1) {
-                    return 2;
+                    return sprDino.nHitDetection(sprPlatform, 2);//landing 
                 } else if (sprDino.vPrevPos.y + sprDino.getSprite().getHeight() <= sprPlatform.vPrevPos.y) {
-                    return 3;
+                    return sprDino.nHitDetection(sprPlatform, 3);// passing through the platform
                 } else if (sprDino.bGrav && sprDino.bGoThrough == false) {
-                    return 1;
+                    return sprDino.nHitDetection(sprPlatform, 1);// comes from side and dies
                 } else if (sprDino.bGoThrough == true) {
-                    return 3;
+                    return sprDino.nHitDetection(sprPlatform, 3);// already passing through the platform
                 } else if (sprDino.bGrav == false) {
-                    return 4;
+                    return sprDino.nHitDetection(sprPlatform, 4);// the block hit me while I was on the ground
                 }
             }
         }
-        return 0;
+        return sprDino.nHitDetection(sprPlatform, 0); // I'm not colliding with anything
     }
 
     @Override
